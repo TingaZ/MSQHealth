@@ -15,6 +15,7 @@ import com.android.msqhealth.R;
 import com.android.msqhealth.model.Product;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import java.util.List;
@@ -65,9 +66,48 @@ public class ViewProductsFragment extends Fragment {
                             }
                         } else {
                             Toast.makeText(getActivity(), "No Objects Found", Toast.LENGTH_LONG).show();
+                            ParseQuery<Product> query = ParseQuery.getQuery(Product.class);
+                            query.include("identifier");
+                            query.include("attributes");
+                            query.findInBackground(new FindCallback<Product>() {
+                                @Override
+                                public void done(List<Product> objects, ParseException e) {
+                                    ParseObject.pinAllInBackground(objects);
+                                    if (e == null) {
+                                        if (objects.size() > 0) {
+                                            for (Product product : objects) {
+                                                recyclerView.setAdapter(new MyProductViewAdapter(objects, getActivity()));
+                                            }
+                                        } else {
+                                            Toast.makeText(getActivity(), "No Objects Found", Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
                         }
                     } else {
-                        e.printStackTrace();
+                        ParseQuery<Product> query = ParseQuery.getQuery(Product.class);
+                        query.include("identifier");
+                        query.include("attributes");
+                        query.findInBackground(new FindCallback<Product>() {
+                            @Override
+                            public void done(List<Product> objects, ParseException e) {
+                                ParseObject.pinAllInBackground(objects);
+                                if (e == null) {
+                                    if (objects.size() > 0) {
+                                        for (Product product : objects) {
+                                            recyclerView.setAdapter(new MyProductViewAdapter(objects, getActivity()));
+                                        }
+                                    } else {
+                                        Toast.makeText(getActivity(), "No Objects Found", Toast.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
                 }
             });
